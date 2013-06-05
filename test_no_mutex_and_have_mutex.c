@@ -41,17 +41,19 @@ int main(int argc, char **argv)
 
     while(print_count1++ < 5)
     {
+        pthread_mutex_lock(&condition_mutex);
+        printf("main cond_mutex lock. \n");
+        pthread_cond_wait(&condition_cond, &condition_mutex);
+        pthread_mutex_unlock(&condition_mutex);
+        printf("main cond_mutex unlock. \n");
         if(pthread_mutex_lock(&mutex) == 0)
         {
             printf("main lock. \n");
         }
-        if(run_now == 1)
+        if(run_now == 2)
         { 
             printf("main thread is run .\n");
-            run_now = 2;
-            pthread_mutex_lock(&condition_mutex);
-            pthread_cond_wait(&condition_cond, &condition_mutex);
-            pthread_mutex_unlock(&condition_mutex);
+            run_now = 1;
         }
         else
         {
@@ -79,10 +81,10 @@ void *thread_function(void *arg)
         {
             printf("thread lock. \n");
         }
-        if(run_now == 2)
+        if(run_now == 1)
         {
             printf("function thread is run. \n");
-            run_now = 1;
+            run_now = 2;
             pthread_mutex_lock(&condition_mutex);
             pthread_cond_signal(&condition_cond);
             pthread_mutex_unlock(&condition_mutex);
